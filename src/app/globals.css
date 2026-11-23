@@ -1,0 +1,327 @@
+@import "tailwindcss";
+
+/* Dark styles never apply inside .paper (the invoice document always looks like paper). */
+@custom-variant dark (&:where(.dark, .dark *):not(.paper, .paper *));
+
+:root,
+.paper {
+  --bg: #eef0f5;
+  --surface: #ffffff;
+  --surface-2: #f4f5f9;
+  --sidebar: #ffffff;
+  --line: #e7e9f0;
+  --fg: #1a1d2e;
+  --muted: #6b7085;
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -14px rgba(15, 23, 42, 0.12);
+  --heading: #0b1020;
+  --mark: #0b1020;
+}
+
+.dark:not(.paper) {
+  --bg: #0b1020;
+  --surface: #121a31;
+  --surface-2: #19223f;
+  --sidebar: #0e1428;
+  --line: #222b47;
+  --fg: #e8eaf5;
+  --muted: #8c93b0;
+  --heading: #ffffff;
+  --mark: #ffffff;
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-sidebar: var(--sidebar);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-heading: var(--heading);
+  --color-mark: var(--mark);
+  --color-brand: #2639e8;
+  --color-brand-600: #1d2dc4;
+  --color-violet: #6c3bf5;
+  --color-navy: #0b1020;
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Soft brand glow behind the app (light mode only), like the Zoxen website. */
+:root:not(.dark) body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(99, 102, 241, 0.08), transparent 38%),
+    radial-gradient(circle at 92% 10%, rgba(139, 92, 246, 0.06), transparent 40%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+/* Headings and big numbers use the display font, tight and bold. */
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), var(--font-body), ui-sans-serif, sans-serif;
+  letter-spacing: -0.025em;
+}
+h1 {
+  letter-spacing: -0.035em;
+}
+
+@keyframes zx-slide-in {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes zx-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes zx-ripple {
+  from {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes zx-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Reusable UI (in a layer so Tailwind utilities can override them) ---------- */
+@layer components {
+.card {
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+.dark .card {
+  border-color: var(--line);
+}
+
+.bg-brand-gradient {
+  background-image: linear-gradient(90deg, #2639e8 0%, #6c3bf5 100%);
+}
+
+.text-gradient {
+  background-image: linear-gradient(90deg, #2639e8 0%, #6c3bf5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1.125rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-sm {
+  height: 2rem;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+  border-radius: 9999px;
+}
+.btn-primary {
+  color: #fff;
+  background-image: linear-gradient(90deg, #2639e8 0%, #5b3cf0 100%);
+  box-shadow: 0 8px 20px -10px rgba(38, 57, 232, 0.8);
+}
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.btn-outline {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+}
+.btn-outline:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.btn-ghost {
+  color: var(--muted);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--fg);
+}
+.btn-danger {
+  color: #e5484d;
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  background: transparent;
+}
+.btn-danger:hover:not(:disabled) {
+  background: rgba(229, 72, 77, 0.08);
+}
+
+.input {
+  width: 100%;
+  height: 2.625rem;
+  padding: 0 0.875rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+textarea.input {
+  height: auto;
+  padding: 0.625rem 0.875rem;
+  resize: vertical;
+}
+.input::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+.input:focus {
+  border-color: #2639e8;
+  box-shadow: 0 0 0 3px rgba(38, 57, 232, 0.15);
+}
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238C93B0' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.table {
+  width: 100%;
+  font-size: 0.875rem;
+}
+.table thead th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  background: var(--surface-2);
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.6875rem;
+}
+.table thead th:first-child {
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+}
+.table thead th:last-child {
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+.table tbody td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.table tbody tr.row-link {
+  cursor: pointer;
+}
+.table tbody tr.row-link:hover td {
+  background: var(--surface-2);
+}
+
+/* Decorative orbit lines */
+.orbit-line {
+  stroke: url(#orbitGrad);
+}
+}
+
+/* Scrolls if it must, but never shows a scrollbar (sidebar menu). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Dashboard extras ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pop {
+  animation: zx-pop 0.18s ease-out;
+}
+.progress {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+  background-image: linear-gradient(90deg, #2639e8 0%, #6c3bf5 100%);
+  transition: width 0.4s ease;
+}
