@@ -8,6 +8,7 @@ import { api, useApi, localToday, showNotice } from "@/lib/client";
 import { parseQuick } from "@/lib/parse";
 import { fmtDate, fmtTime } from "@/lib/dates";
 import { useApp } from "./Providers";
+import Voice from "./Voice";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -38,6 +39,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const [more, setMore] = useState(false);
   const { openTask } = useApp();
   const install = useInstall();
+  const { data: projects } = useApi<any[]>("/api/projects");
   useEffect(() => setMore(false), [path]);
 
   return (
@@ -77,6 +79,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             {install.canShow && (
               <button onClick={install.prompt} className="lg:hidden btn btn-primary btn-sm !h-10" aria-label="Install app"><Download size={15} /><span className="hidden sm:inline">Install</span></button>
             )}
+            <Voice projects={projects || []} />
             <BellMenu />
             <ThemeToggle />
           </div>

@@ -45,7 +45,7 @@ export function parseQuick(input: string, today: string): Parsed {
   take(/\s(tomorrow|tmrw|kal)\b/i, () => (out.date = addDays(today, 1)));
   take(/\snext week\b/i, () => (out.date = addDays(today, 7)));
   take(/\sin (\d+) days?\b/i, (m) => (out.date = addDays(today, Number(m[1]))));
-  take(/\s(?:on\s)?(sun|mon|tue|wed|thu|fri|sat)[a-z]*\b/i, (m) => {
+  take(/\s(?:on\s)?(sun|mon|tue|wed|thu|fri|sat)(?:day|s|sday|nesday|rs|rsday|urday)?\b/i, (m) => {
     const target = DAYS.indexOf(m[1].toLowerCase());
     const cur = parseYmd(today).getDay();
     out.date = addDays(today, ((target - cur + 7) % 7) || 7);
