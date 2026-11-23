@@ -32,7 +32,7 @@ export default function TaskItem({ t, showDate, compact, hideProject }: { t: Occ
       <button
         onClick={toggle}
         aria-label={t.done ? "Mark not done" : "Mark done"}
-        className={`mt-0.5 size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition ${t.done ? "bg-brand-gradient border-transparent text-white" : "hover:border-[#2639e8]"}`}
+        className={`mt-0.5 size-6 sm:size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition ${t.done ? "bg-brand-gradient border-transparent text-white" : "hover:border-[#2639e8]"}`}
         style={t.done ? undefined : { borderColor: PRIORITY_COLOR[t.priority] }}
       >
         {t.done && <Check size={12} strokeWidth={3} />}
@@ -54,7 +54,7 @@ export default function TaskItem({ t, showDate, compact, hideProject }: { t: Occ
         </div>
       </div>
       {!t.done && t.occ && t.repeat === "none" && (
-        <button onClick={moveTomorrow} title="Move to next day" className="opacity-0 group-hover:opacity-100 text-muted hover:text-fg transition p-1">
+        <button onClick={moveTomorrow} title="Move to next day" className="lg:opacity-0 lg:group-hover:opacity-100 text-muted hover:text-fg transition p-1.5 -m-0.5">
           {late ? <CalendarClock size={16} /> : <ArrowRight size={16} />}
         </button>
       )}

@@ -74,7 +74,7 @@ export default function NotesPage() {
               <div className="flex items-center gap-2 mt-3 text-[11px] text-muted">
                 {proj && <span className="chip" style={{ color: proj.color }}>{proj.name}</span>}
                 <span>{new Date(n.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-                <div className="ml-auto flex gap-1 opacity-60 group-hover:opacity-100">
+                <div className="ml-auto flex gap-1 lg:opacity-60 lg:group-hover:opacity-100">
                   <button title="Turn into task" onClick={() => toTask(n)} className="p-1 hover:text-fg"><ListPlus size={14} /></button>
                   <button title="Pin" onClick={() => api(`/api/notes/${n._id}`, "PATCH", { pinned: !n.pinned })} className={`p-1 hover:text-fg ${n.pinned ? "text-[#2639e8]" : ""}`}><Pin size={14} /></button>
                   <button title="Delete" onClick={() => confirm("Delete note?") && api(`/api/notes/${n._id}`, "DELETE")} className="p-1 hover:text-red-500"><Trash2 size={14} /></button>

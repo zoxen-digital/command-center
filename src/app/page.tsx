@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-[2rem] bg-navy text-white p-6 sm:p-8 shadow-[0_30px_60px_-30px_rgba(38,57,232,.7)]">
+      <section className="relative overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] bg-navy text-white p-5 sm:p-8 shadow-[0_30px_60px_-30px_rgba(38,57,232,.7)]">
         <div className="absolute inset-0 opacity-90" style={{ background: "radial-gradient(circle at 85% 20%, rgba(108,59,245,.55), transparent 45%), radial-gradient(circle at 10% 110%, rgba(38,57,232,.6), transparent 50%)" }} />
         <svg className="absolute -right-20 -top-24 w-[520px] opacity-30 pointer-events-none" viewBox="0 0 400 400" fill="none">
           <ellipse cx="200" cy="200" rx="190" ry="70" transform="rotate(-18 200 200)" stroke="url(#hg)" strokeWidth="1.5" />
@@ -50,7 +50,7 @@ export default function Home() {
             <span className="inline-flex items-center gap-2 text-xs font-semibold bg-white/10 border border-white/15 rounded-full px-3 py-1 backdrop-blur">
               <CalendarDays size={13} /> {fmtDate(data.date, { weekday: "long", day: "numeric", month: "long" })}
             </span>
-            <h1 className="text-3xl sm:text-4xl font-extrabold mt-3 !text-white">{greeting(data.minutes)}, {data.ownerName} 👋</h1>
+            <h1 className="text-[1.65rem] leading-tight sm:text-4xl font-extrabold mt-3 !text-white">{greeting(data.minutes)}, {data.ownerName} 👋</h1>
             <p className="text-white/70 mt-2 text-sm sm:text-base">
               {next ? <>Next up: <b className="text-white">{next.title}</b> at {fmtTime(next.time)}</> : data.today.length ? (done === data.today.length ? "Everything for today is done. Great work! 🎉" : "No more timed tasks today. Finish the rest at your own pace.") : "Nothing planned for today yet. Let’s plan your day."}
             </p>
@@ -60,7 +60,7 @@ export default function Home() {
               <Link href="/planner" className="btn bg-white/10 border border-white/20 text-white hover:bg-white/20"><CalendarDays size={16} /> Plan week</Link>
             </div>
           </div>
-          <div className="flex items-center gap-5 bg-white/[.07] border border-white/10 rounded-3xl p-5 backdrop-blur">
+          <div className="flex items-center gap-5 bg-white/[.07] border border-white/10 rounded-3xl p-4 sm:p-5 backdrop-blur w-full sm:w-auto">
             <div className="relative">
               <svg width="112" height="112" className="-rotate-90">
                 <circle cx="56" cy="56" r="48" fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="10" />

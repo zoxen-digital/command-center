@@ -49,3 +49,14 @@ export function localToday() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
+/** Show a system notification. Android Chrome needs the service worker for this; desktop can use the constructor. */
+export async function showNotice(title: string, body: string) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const opts = { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" };
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg) return reg.showNotification(title, opts);
+  } catch {}
+  try { new Notification(title, opts); } catch {}
+}

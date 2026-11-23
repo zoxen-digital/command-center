@@ -27,7 +27,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <C.Provider value={{ openTask: (t) => setTask(t || {}), toast }}>
       {children}
       <TaskModal initial={task} onClose={() => setTask(null)} />
-      <div className="fixed bottom-20 lg:bottom-6 right-4 z-[60] flex flex-col gap-2">
+      <div className="fixed bottom-24 lg:bottom-6 right-4 left-4 sm:left-auto items-end z-[60] flex flex-col gap-2">
         {toasts.map((t) => (
           <div key={t.id} className="card flex items-center gap-2 px-4 py-3 text-sm font-medium" style={{ animation: "zx-slide-in .2s ease-out" }}>
             {t.kind === "ok" ? <CheckCircle2 size={18} className="text-emerald-500" /> : <AlertCircle size={18} className="text-red-500" />}

@@ -325,3 +325,16 @@ select.input {
   background-image: linear-gradient(90deg, #2639e8 0%, #6c3bf5 100%);
   transition: width 0.4s ease;
 }
+
+/* ---------- Mobile ---------- */
+html { -webkit-tap-highlight-color: transparent; }
+@media (max-width: 640px) {
+  /* 16px stops iPhone from zooming into inputs */
+  .input, select.input, textarea.input { font-size: 16px; }
+  .card { border-radius: 1.25rem; }
+  h1 { letter-spacing: -0.03em; }
+}
+/* Installed app: no overscroll bounce showing white behind */
+@media (display-mode: standalone) {
+  html, body { overscroll-behavior-y: none; }
+}

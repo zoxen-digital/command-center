@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useApi, api, localToday } from "@/lib/client";
+import { useApi, api, localToday, showNotice } from "@/lib/client";
 import { fmtDate, fmtTime, toMinutes, addDays } from "@/lib/dates";
 import type { Occurrence } from "@/lib/tasks";
 import TaskItem from "@/components/TaskItem";
@@ -137,7 +137,7 @@ function FocusTimer() {
         setRun(false);
         const msg = mode === "focus" ? "Focus session done! Take a break ☕" : "Break over — back to work 💪";
         toast(msg);
-        if ("Notification" in window && Notification.permission === "granted") new Notification("⏱ Focus timer", { body: msg, icon: "/icon.svg" });
+        showNotice("⏱ Focus timer", msg);
         return 0;
       }
       return l - 1;

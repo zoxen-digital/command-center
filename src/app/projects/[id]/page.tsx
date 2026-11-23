@@ -148,7 +148,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                   {n.title && <div className="font-semibold">{n.title}</div>}
                   <div className="whitespace-pre-wrap">{n.body}</div>
                   <div className="text-[10px] text-muted mt-1">{new Date(n.updatedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
-                  <button onClick={() => api(`/api/notes/${n._id}`, "DELETE")} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-muted hover:text-red-500"><Trash2 size={13} /></button>
+                  <button onClick={() => api(`/api/notes/${n._id}`, "DELETE")} className="absolute top-2 right-2 lg:opacity-0 lg:group-hover:opacity-100 text-muted hover:text-red-500"><Trash2 size={13} /></button>
                 </div>
               ))}
             </div>

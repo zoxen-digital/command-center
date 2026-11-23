@@ -13,9 +13,12 @@ export const metadata: Metadata = {
   description: "Projects, day planner and reminders.",
   icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
   manifest: "/manifest.webmanifest",
+  applicationName: "Command",
+  appleWebApp: { capable: true, title: "Command", statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
 };
 
-export const viewport: Viewport = { themeColor: "#2639e8" };
+export const viewport: Viewport = { themeColor: "#2639e8", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 // Light by default; dark if saved, or if the OS prefers dark and nothing is saved.
 const themeScript = `try{var t=localStorage.getItem('zx-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;

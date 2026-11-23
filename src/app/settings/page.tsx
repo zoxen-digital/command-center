@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useApi, api } from "@/lib/client";
+import { useApi, api, showNotice } from "@/lib/client";
 import { SetupError } from "@/components/ui";
 import { useApp } from "@/components/Providers";
 import { Mail, BellRing, Sunrise, Moon, User, CheckCircle2, XCircle } from "lucide-react";
@@ -42,7 +42,7 @@ export default function SettingsPage() {
   async function askPerm() {
     const p = await Notification.requestPermission();
     setPerm(p);
-    if (p === "granted") new Notification("Notifications on ✅", { body: "You will see task reminders here while the dashboard is open.", icon: "/icon.svg" });
+    if (p === "granted") showNotice("Notifications on ✅", "You will see task reminders here while the app is open.");
   }
 
   const Toggle = ({ k }: { k: string }) => (
@@ -102,10 +102,10 @@ export default function SettingsPage() {
 
 function Row({ icon, title, sub, children }: { icon: React.ReactNode; title: string; sub: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3 py-2 border-t border-line first-of-type:border-0">
+    <div className="flex flex-wrap items-center gap-3 py-2 border-t border-line first-of-type:border-0">
       <div className="size-9 rounded-xl bg-surface-2 flex items-center justify-center text-muted shrink-0">{icon}</div>
       <div className="flex-1 min-w-0"><div className="text-sm font-semibold">{title}</div><div className="text-xs text-muted">{sub}</div></div>
-      <div className="flex items-center gap-3">{children}</div>
+      <div className="flex items-center gap-3 ml-auto">{children}</div>
     </div>
   );
 }

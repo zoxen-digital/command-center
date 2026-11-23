@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LayoutDashboard, Sun, CalendarDays, ListTodo, FolderKanban, StickyNote, Settings, Moon, Bell, Plus, Sparkles } from "lucide-react";
-import { api, useApi, localToday } from "@/lib/client";
+import { LayoutDashboard, Sun, CalendarDays, ListTodo, FolderKanban, StickyNote, Settings, Moon, Bell, Plus, Sparkles, Download, Menu, SlidersHorizontal } from "lucide-react";
+import { useInstall, IosInstallHelp } from "./Install";
+import { api, useApi, localToday, showNotice } from "@/lib/client";
 import { parseQuick } from "@/lib/parse";
 import { fmtDate, fmtTime } from "@/lib/dates";
 import { useApp } from "./Providers";
@@ -18,12 +19,12 @@ const NAV = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-function Logo() {
+function Logo({ compact }: { compact?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 px-2">
+    <Link href="/" className="flex items-center gap-2.5 px-1 shrink-0">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/icon.svg" alt="" className="size-9 rounded-xl" />
-      <div className="leading-tight">
+      <div className={`leading-tight ${compact ? "hidden sm:block" : ""}`}>
         <div className="font-display font-bold text-heading">Zoxen</div>
         <div className="text-[11px] text-muted -mt-0.5">Command Center</div>
       </div>
@@ -34,6 +35,11 @@ function Logo() {
 export default function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const active = (h: string) => (h === "/" ? path === "/" : path.startsWith(h));
+  const [more, setMore] = useState(false);
+  const { openTask } = useApp();
+  const install = useInstall();
+  useEffect(() => setMore(false), [path]);
+
   return (
     <div className="min-h-screen lg:flex">
       <aside className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-sidebar border-r border-line p-4 gap-6">
@@ -47,6 +53,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
+        {install.canShow && (
+          <button onClick={install.prompt} className="btn btn-outline w-full"><Download size={16} /> Install app</button>
+        )}
         <div className="mt-auto relative overflow-hidden rounded-3xl bg-navy text-white p-4 text-xs">
           <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 100% 0%, rgba(108,59,245,.6), transparent 60%)" }} />
           <div className="relative">
@@ -61,26 +70,75 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-30 bg-bg/80 backdrop-blur-md border-b border-line">
-          <div className="flex items-center gap-3 px-4 lg:px-8 h-16">
-            <div className="lg:hidden"><Logo /></div>
+        <header className="sticky top-0 z-30 bg-bg/85 backdrop-blur-md border-b border-line pt-[env(safe-area-inset-top)]">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2.5 sm:gap-3 px-4 lg:px-8 py-2.5 lg:py-0 lg:h-16">
+            <div className="lg:hidden flex-1 sm:flex-none"><Logo compact /></div>
             <QuickAdd />
+            {install.canShow && (
+              <button onClick={install.prompt} className="lg:hidden btn btn-primary btn-sm !h-10" aria-label="Install app"><Download size={15} /><span className="hidden sm:inline">Install</span></button>
+            )}
             <BellMenu />
             <ThemeToggle />
           </div>
         </header>
-        <main className="flex-1 px-4 lg:px-8 py-6 pb-28 lg:pb-10 max-w-[1400px] w-full mx-auto">{children}</main>
+        <main className="flex-1 px-3.5 sm:px-6 lg:px-8 py-5 lg:py-6 pb-32 lg:pb-10 max-w-[1400px] w-full mx-auto">{children}</main>
       </div>
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar border-t border-line flex justify-around py-2">
-        {NAV.slice(0, 6).map(({ href, label, icon: I }) => (
-          <Link key={href} href={href} className={`flex flex-col items-center gap-0.5 text-[10px] font-semibold px-2 ${active(href) ? "text-[#2639e8] dark:text-white" : "text-muted"}`}>
-            <I size={20} /> {label.split(" ")[0]}
-          </Link>
-        ))}
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-sidebar/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]">
+        <div className="grid grid-cols-5 items-end h-16 max-w-md mx-auto">
+          {MOBILE.slice(0, 2).map((n) => <MobileLink key={n.href} {...n} on={active(n.href)} />)}
+          <div className="flex justify-center">
+            <button onClick={() => openTask()} aria-label="New task"
+              className="-mt-7 size-14 rounded-full bg-brand-gradient text-white flex items-center justify-center shadow-[0_12px_28px_-8px_rgba(38,57,232,.9)] ring-4 ring-bg active:scale-95 transition">
+              <Plus size={26} />
+            </button>
+          </div>
+          {MOBILE.slice(2, 3).map((n) => <MobileLink key={n.href} {...n} on={active(n.href)} />)}
+          <button onClick={() => setMore(true)} className={`flex flex-col items-center justify-center gap-1 h-full text-[10px] font-semibold ${more || ["/tasks", "/projects", "/notes", "/settings"].some((h) => active(h)) ? "text-[#2639e8] dark:text-white" : "text-muted"}`}>
+            <Menu size={21} /> More
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile "More" sheet */}
+      {more && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm" onClick={() => setMore(false)}>
+          <div className="absolute inset-x-0 bottom-0 bg-surface rounded-t-[2rem] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pop" onClick={(e) => e.stopPropagation()}>
+            <div className="w-10 h-1.5 rounded-full bg-line mx-auto mb-5" />
+            <div className="grid grid-cols-3 gap-3">
+              {NAV.map(({ href, label, icon: I }) => (
+                <Link key={href} href={href} className={`flex flex-col items-center gap-2 p-3 rounded-2xl text-xs font-semibold text-center ${active(href) ? "bg-brand-gradient text-white" : "bg-surface-2 text-fg"}`}>
+                  <I size={22} /> {label}
+                </Link>
+              ))}
+              {install.canShow && (
+                <button onClick={install.prompt} className="flex flex-col items-center gap-2 p-3 rounded-2xl text-xs font-semibold bg-[#2639e8]/10 text-[#2639e8] dark:text-white">
+                  <Download size={22} /> Install app
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {install.iosHelp && <IosInstallHelp onClose={install.closeIos} />}
     </div>
+  );
+}
+
+const MOBILE = [
+  { href: "/", label: "Home", icon: LayoutDashboard },
+  { href: "/today", label: "Today", icon: Sun },
+  { href: "/planner", label: "Planner", icon: CalendarDays },
+];
+
+function MobileLink({ href, label, icon: I, on }: { href: string; label: string; icon: typeof Sun; on: boolean }) {
+  return (
+    <Link href={href} className={`flex flex-col items-center justify-center gap-1 h-full text-[10px] font-semibold ${on ? "text-[#2639e8] dark:text-white" : "text-muted"}`}>
+      <span className={`px-3.5 py-1 rounded-full transition ${on ? "bg-[#2639e8]/10 dark:bg-white/10" : ""}`}><I size={20} /></span>
+      {label}
+    </Link>
   );
 }
 
@@ -107,12 +165,12 @@ function QuickAdd() {
   }
 
   return (
-    <form onSubmit={submit} className="flex-1 relative max-w-2xl">
+    <form onSubmit={submit} className="order-last basis-full sm:order-none sm:basis-auto sm:flex-1 relative max-w-2xl">
       <Plus size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
-      <input value={v} onChange={(e) => setV(e.target.value)} placeholder="Quick add: “Gym every day 7am” or “Send invoice fri 3pm #crm”"
-        className="input !rounded-full !pl-11 !pr-24 !h-11" />
+      <input value={v} onChange={(e) => setV(e.target.value)} placeholder="Quick add: “Gym roz 7am”, “Invoice fri 3pm #crm”"
+        className="input !rounded-full !pl-11 !pr-14 sm:!pr-24 !h-11" />
       <button type="button" onClick={() => openTask(p ? { title: p.title, date: p.date, time: p.time, projectId: proj?.id ?? null } : undefined)}
-        className="absolute right-1.5 top-1/2 -translate-y-1/2 btn btn-primary btn-sm">Details</button>
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 btn btn-primary btn-sm !px-3" aria-label="Add with details"><span className="hidden sm:inline">Details</span><SlidersHorizontal size={14} className="sm:hidden" /></button>
       {p?.title && (
         <div className="absolute left-0 right-0 top-full mt-2 card !rounded-2xl px-4 py-2.5 text-xs flex flex-wrap gap-2 items-center pop">
           <span className="font-semibold text-fg">{p.title}</span>
@@ -156,7 +214,7 @@ function BellMenu() {
         if (fresh.length) {
           beep();
           for (const n of fresh) {
-            if ("Notification" in window && Notification.permission === "granted") new Notification(n.title, { body: n.body, icon: "/icon.svg", tag: n._id });
+            showNotice(n.title, n.body);
             toast(`${n.title} — ${n.body}`);
           }
           await fetch("/api/notifications", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "shown", ids: fresh.map((n: any) => n._id) }) });
@@ -184,12 +242,12 @@ function BellMenu() {
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={openMenu} className="btn btn-outline !px-0 !w-11 !h-11 relative" aria-label="Notifications">
+      <button onClick={openMenu} className="btn btn-outline !px-0 !w-10 !h-10 sm:!w-11 sm:!h-11 relative" aria-label="Notifications">
         <Bell size={18} />
         {data.unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">{data.unread}</span>}
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 w-80 card !rounded-2xl p-2 pop max-h-[70vh] overflow-y-auto">
+        <div className="fixed sm:absolute left-3 right-3 top-16 sm:top-auto sm:left-auto sm:right-0 mt-2 sm:w-80 z-50 card !rounded-2xl p-2 pop max-h-[70vh] overflow-y-auto">
           <div className="flex items-center justify-between px-3 py-2">
             <span className="font-semibold text-sm text-heading">Notifications</span>
             {data.items.length > 0 && <button className="text-xs text-muted hover:text-fg" onClick={() => api("/api/notifications", "POST", { action: "clear" }).then(() => setData({ items: [], unread: 0 }))}>Clear all</button>}
@@ -218,7 +276,7 @@ function ThemeToggle() {
     localStorage.setItem("zx-theme", d ? "dark" : "light");
   }
   return (
-    <button onClick={toggle} className="btn btn-outline !px-0 !w-11 !h-11" aria-label="Toggle theme">
+    <button onClick={toggle} className="btn btn-outline !px-0 !w-10 !h-10 sm:!w-11 sm:!h-11" aria-label="Toggle theme">
       {dark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
