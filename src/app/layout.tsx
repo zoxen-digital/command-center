@@ -11,7 +11,8 @@ const hanken = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-body", wei
 export const metadata: Metadata = {
   title: { default: "Zoxen Command Center", template: "%s | Zoxen" },
   description: "Projects, day planner and reminders.",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
+  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = { themeColor: "#2639e8" };
