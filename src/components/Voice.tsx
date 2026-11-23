@@ -17,11 +17,16 @@ const ERR: Record<string, string> = {
 
 type State = { kind: "listening" | "saving" | "saved" | "error"; msg: string; taskId?: string };
 
+// Some phones end with no text on the first try, so retry with simpler settings before giving up.
+const MAX_TRIES = 3;
+
 /** Tap, speak, done: the task is saved automatically, with an Undo. */
 export default function Voice({ projects }: { projects: any[] }) {
   const [st, setSt] = useState<State | null>(null);
   const [lang, setLang] = useState("hi-IN");
+  const [typed, setTyped] = useState("");
   const rec = useRef<any>(null);
+  const stopped = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hide = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -70,7 +75,7 @@ export default function Voice({ projects }: { projects: any[] }) {
     }
   }
 
-  function listen(l = lang) {
+  function listen(l = lang, attempt = 0, reached = 0) {
     if (st?.kind === "saving") return;
     cancel();
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -79,8 +84,13 @@ export default function Voice({ projects }: { projects: any[] }) {
     let heard = "";
     let failed = "";
     rec.current = r;
-    r.lang = l;
-    r.interimResults = true;
+    r.lang = attempt === 2 ? (l === "hi-IN" ? "en-IN" : "hi-IN") : l;
+    r.interimResults = attempt === 0;
+    // How far the audio got: 1 mic opened, 2 sound heard, 3 speech detected.
+    let stage = reached;
+    r.onaudiostart = () => { stage = Math.max(stage, 1); };
+    r.onsoundstart = () => { stage = Math.max(stage, 2); };
+    r.onspeechstart = () => { stage = Math.max(stage, 3); };
     r.onresult = (e: any) => {
       if (rec.current !== r) return;
       // One utterance: the last result is the most complete (Android can repeat earlier ones).
@@ -92,10 +102,18 @@ export default function Voice({ projects }: { projects: any[] }) {
       if (rec.current !== r) return;
       rec.current = null;
       clearTimeout(timer.current);
-      if (heard && !failed) save(heard, l);
-      else show({ kind: "error", msg: ERR[failed] || (failed ? `Voice error: ${failed}` : ERR["no-speech"]) }, 7000);
+      if (heard) return void save(heard, r.lang);
+      const empty = !failed || failed === "no-speech";
+      if (empty && !stopped.current && attempt + 1 < MAX_TRIES) {
+        timer.current = setTimeout(() => listen(l, attempt + 1, stage), 300);
+        return;
+      }
+      const why = ["Mic shuru hi nahi hua", "Mic khula, par awaaz nahi pahunchi", "Awaaz aayi, par shabd nahi bane", "Aapki awaaz suni, par Google ne text nahi diya"][stage];
+      setTyped("");
+      show({ kind: "error", msg: empty ? `${why}. (code ${failed || "empty"}-${stage})` : `${ERR[failed] || "Voice error"} (code ${failed}-${stage})` });
     };
-    show({ kind: "listening", msg: "" });
+    stopped.current = false;
+    show({ kind: "listening", msg: attempt ? "Dobara boliye" : "" });
     try {
       r.start();
     } catch (e) {
@@ -104,6 +122,7 @@ export default function Voice({ projects }: { projects: any[] }) {
     }
     // Some phones never end by themselves: stop after 15s, and force a result if that is ignored too.
     timer.current = setTimeout(() => {
+      stopped.current = true;
       r.stop();
       timer.current = setTimeout(() => r.onend(), 2000);
     }, 15_000);
@@ -128,7 +147,7 @@ export default function Voice({ projects }: { projects: any[] }) {
   const listening = st?.kind === "listening";
   return (
     <>
-      <button type="button" onClick={() => (listening ? rec.current?.stop() : listen())} aria-label="Add task by voice"
+      <button type="button" onClick={() => { if (listening && rec.current) { stopped.current = true; rec.current.stop(); } else listen(); }} aria-label="Add task by voice"
         className={`btn btn-primary !px-0 !w-10 !h-10 sm:!w-11 sm:!h-11 ${listening ? "animate-pulse" : ""}`}><Mic size={18} /></button>
       {/* Portal: the header's backdrop-filter would otherwise trap fixed elements inside it. */}
       {st && createPortal(
@@ -137,6 +156,13 @@ export default function Voice({ projects }: { projects: any[] }) {
           <div className="flex-1 min-w-0 text-sm">
             <div className="text-xs text-white/60">{{ listening: "Sun raha hoon…", saving: "Save ho raha hai…", saved: "Ho gaya", error: "Dobara try karo" }[st.kind]}</div>
             <div className="font-semibold break-words">{st.msg || "Boliye"}</div>
+            {st.kind === "error" && (
+              <form className="mt-2 flex gap-2" onSubmit={(e) => { e.preventDefault(); if (typed.trim()) save(typed.trim(), lang); }}>
+                <input className="flex-1 min-w-0 h-10 rounded-xl bg-white/10 px-3 text-base outline-none placeholder:text-white/50" placeholder="Keyboard ke mic se bolo" value={typed}
+                  onFocus={() => clearTimeout(hide.current)} onChange={(e) => setTyped(e.target.value)} />
+                <button className="px-3 rounded-xl bg-white/15 text-xs font-bold">Save</button>
+              </form>
+            )}
           </div>
           {listening && <button onClick={switchLang} className="text-xs font-bold px-2 py-1.5 rounded-lg bg-white/10">{lang === "hi-IN" ? "HI" : "EN"}</button>}
           {st.kind === "saved" && st.taskId && <button onClick={() => undo(st.taskId!)} className="text-xs font-bold px-2 py-1.5 rounded-lg bg-white/10">Undo</button>}
