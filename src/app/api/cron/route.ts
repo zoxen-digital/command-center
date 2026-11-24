@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
   const url = new URL(req.url);
   const key = url.searchParams.get("key") || req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret && key !== secret) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (secret ? key !== secret : process.env.NODE_ENV === "production") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   try {
     return NextResponse.json(await tick());
   } catch (e) {

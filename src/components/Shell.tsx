@@ -34,6 +34,10 @@ function Logo({ compact }: { compact?: boolean }) {
 }
 
 export default function Shell({ children }: { children: React.ReactNode }) {
+  return usePathname() === "/login" ? <>{children}</> : <Frame>{children}</Frame>;
+}
+
+function Frame({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const active = (h: string) => (h === "/" ? path === "/" : path.startsWith(h));
   const [more, setMore] = useState(false);

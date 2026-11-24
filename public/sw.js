@@ -1,8 +1,8 @@
 // Command — service worker. Makes the app installable and opens instantly.
 // Pages: network first (always fresh data), falls back to cache when offline.
 // API calls are never cached.
-const CACHE = "command-v1";
-const SHELL = ["/", "/today", "/planner", "/icon.svg", "/icons/icon-192.png", "/manifest.webmanifest"];
+const CACHE = "command-v2";
+const SHELL = ["/icon.svg", "/icons/icon-192.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));
@@ -20,13 +20,13 @@ self.addEventListener("fetch", (e) => {
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        if (res.ok && (e.request.mode === "navigate" || url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icons"))) {
+        if (res.ok && !res.redirected && url.pathname !== "/login" && (e.request.mode === "navigate" || url.pathname.startsWith("/_next/static") || url.pathname.startsWith("/icons"))) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(e.request, copy));
         }
         return res;
       })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match("/"))),
+      .catch(() => caches.match(e.request).then((r) => r || caches.match("/")).then((r) => r || Response.error())),
   );
 });
 

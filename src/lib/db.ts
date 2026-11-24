@@ -97,6 +97,9 @@ const ActivitySchema = new Schema(
   opts,
 );
 
+const LoginAttemptSchema = new Schema({ ip: { type: String, index: true }, at: { type: Date, default: Date.now, expires: 900 } });
+export const LoginAttempt = models.LoginAttempt || model("LoginAttempt", LoginAttemptSchema);
+
 export const Project = models.Project || model("Project", ProjectSchema);
 export const Task = models.Task || model("Task", TaskSchema);
 export const Note = models.Note || model("Note", NoteSchema);

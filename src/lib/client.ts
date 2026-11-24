@@ -8,6 +8,7 @@ export async function api<T = any>(url: string, method = "GET", body?: unknown):
     body: body ? JSON.stringify(body) : undefined,
     cache: "no-store",
   });
+  if (res.status === 401 && window.location.pathname !== "/login") window.location.assign("/login");
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data?.error) throw new Error(data?.error || `Request failed (${res.status})`);
   if (method !== "GET") window.dispatchEvent(new Event("zx:changed"));
