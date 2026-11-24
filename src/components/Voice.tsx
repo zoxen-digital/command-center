@@ -157,6 +157,17 @@ export default function Voice({ projects }: { projects: any[] }) {
     }
   }
 
+  // Opened from the "Voice task" shortcut (/?voice=1): start listening straight away.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("voice") !== "1") return;
+    const t = setTimeout(() => {
+      window.history.replaceState(null, "", window.location.pathname);
+      listen(localStorage.getItem("zx-voice-lang") || "hi-IN");
+    }, 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function switchLang() {
     const l = lang === "hi-IN" ? "en-IN" : "hi-IN";
     setLang(l);
