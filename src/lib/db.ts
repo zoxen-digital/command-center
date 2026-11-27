@@ -100,6 +100,9 @@ const ActivitySchema = new Schema(
 const LoginAttemptSchema = new Schema({ ip: { type: String, index: true }, at: { type: Date, default: Date.now, expires: 900 } });
 export const LoginAttempt = models.LoginAttempt || model("LoginAttempt", LoginAttemptSchema);
 
+const StreakDaySchema = new Schema({ day: { type: String, unique: true }, status: { type: String, enum: ["clean", "relapse"] } }, opts);
+export const StreakDay = models.StreakDay || model("StreakDay", StreakDaySchema);
+
 export const Project = models.Project || model("Project", ProjectSchema);
 export const Task = models.Task || model("Task", TaskSchema);
 export const Note = models.Note || model("Note", NoteSchema);

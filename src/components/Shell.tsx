@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LayoutDashboard, Sun, CalendarDays, ListTodo, FolderKanban, StickyNote, Settings, Moon, Bell, Plus, Sparkles, Download, Menu, SlidersHorizontal } from "lucide-react";
+import { LayoutDashboard, Sun, CalendarDays, ListTodo, FolderKanban, StickyNote, Settings, Flame, Moon, Bell, Plus, Sparkles, Download, Menu, SlidersHorizontal } from "lucide-react";
 import { useInstall, IosInstallHelp } from "./Install";
 import { api, useApi, localToday, showNotice } from "@/lib/client";
 import { parseQuick } from "@/lib/parse";
@@ -16,6 +16,7 @@ const NAV = [
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/notes", label: "Notes & Ideas", icon: StickyNote },
+  { href: "/streak", label: "Streak", icon: Flame },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -99,7 +100,7 @@ function Frame({ children }: { children: React.ReactNode }) {
             </button>
           </div>
           {MOBILE.slice(2, 3).map((n) => <MobileLink key={n.href} {...n} on={active(n.href)} />)}
-          <button onClick={() => setMore(true)} className={`flex flex-col items-center justify-center gap-1 h-full text-[10px] font-semibold ${more || ["/tasks", "/projects", "/notes", "/settings"].some((h) => active(h)) ? "text-[#2639e8] dark:text-white" : "text-muted"}`}>
+          <button onClick={() => setMore(true)} className={`flex flex-col items-center justify-center gap-1 h-full text-[10px] font-semibold ${more || ["/tasks", "/projects", "/notes", "/streak", "/settings"].some((h) => active(h)) ? "text-[#2639e8] dark:text-white" : "text-muted"}`}>
             <Menu size={21} /> More
           </button>
         </div>
