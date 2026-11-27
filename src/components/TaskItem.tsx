@@ -32,10 +32,11 @@ export default function TaskItem({ t, showDate, compact, hideProject }: { t: Occ
       <button
         onClick={toggle}
         aria-label={t.done ? "Mark not done" : "Mark done"}
-        className={`mt-0.5 size-6 sm:size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition ${t.done ? "bg-brand-gradient border-transparent text-white" : "hover:border-[#2639e8]"}`}
+        title={t.done ? "Mark not done" : "Mark done"}
+        className={`group/c mt-0.5 size-7 sm:size-6 shrink-0 rounded-full border-2 flex items-center justify-center transition ${t.done ? "bg-emerald-500 border-transparent text-white" : "hover:bg-emerald-500 hover:border-emerald-500 hover:text-white text-transparent"}`}
         style={t.done ? undefined : { borderColor: PRIORITY_COLOR[t.priority] }}
       >
-        {t.done && <Check size={12} strokeWidth={3} />}
+        <Check size={14} strokeWidth={3} className={t.done ? "" : "opacity-0 group-hover/c:opacity-100"} />
       </button>
       <div className="flex-1 min-w-0">
         <div className={`text-sm font-medium leading-snug ${t.done ? "line-through text-muted" : "text-fg"}`}>{t.title}</div>

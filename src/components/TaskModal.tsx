@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Modal } from "./ui";
 import { api, useApi, localToday } from "@/lib/client";
 import type { Occurrence } from "@/lib/tasks";
-import { Plus, Trash2, X } from "lucide-react";
+import { Check, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import { useApp } from "./Providers";
 
 const EMPTY = {
@@ -47,6 +47,16 @@ export default function TaskModal({ initial, onClose }: { initial: Partial<Occur
       toast((err as Error).message, "err");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function toggleDone() {
+    try {
+      const r = await api<{ done: boolean }>(`/api/tasks/${initial!.id}/toggle`, "POST", { occ: initial!.occ ?? null });
+      toast(r.done ? `Done: ${f.title} 🎉` : "Marked as not done");
+      onClose();
+    } catch (err) {
+      toast((err as Error).message, "err");
     }
   }
 
@@ -169,7 +179,12 @@ export default function TaskModal({ initial, onClose }: { initial: Partial<Occur
         </div>
 
         <div className="flex items-center gap-2 pt-1">
-          {editing && <button type="button" className="btn btn-danger" onClick={remove}><Trash2 size={16} /> Delete</button>}
+          {editing && <button type="button" className="btn btn-danger !px-3" onClick={remove} aria-label="Delete task"><Trash2 size={16} /></button>}
+          {editing && (
+            <button type="button" className={`btn ${initial!.done ? "btn-outline" : "bg-emerald-500 text-white hover:bg-emerald-600"}`} onClick={toggleDone}>
+              {initial!.done ? <><RotateCcw size={16} /> Not done</> : <><Check size={16} strokeWidth={3} /> Done</>}
+            </button>
+          )}
           <div className="flex-1" />
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" disabled={busy || !f.title.trim()}>{busy ? "Saving…" : editing ? "Save" : "Add task"}</button>
