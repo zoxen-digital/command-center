@@ -16,7 +16,7 @@ const NAV = [
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/notes", label: "Notes & Ideas", icon: StickyNote },
-  { href: "/streak", label: "Streak", icon: Flame },
+  { href: "/streak", label: "Streaks", icon: Flame },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

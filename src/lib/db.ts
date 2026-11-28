@@ -103,6 +103,31 @@ export const LoginAttempt = models.LoginAttempt || model("LoginAttempt", LoginAt
 const StreakDaySchema = new Schema({ day: { type: String, unique: true }, status: { type: String, enum: ["clean", "relapse"] } }, opts);
 export const StreakDay = models.StreakDay || model("StreakDay", StreakDaySchema);
 
+const TrackerSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    kind: { type: String, enum: ["check", "amount"], default: "check" },
+    target: { type: Number, default: 1 },
+    unit: { type: String, default: "" },
+    step: { type: Number, default: 1 },
+    color: { type: String, default: "#10b981" },
+    order: { type: Number, default: 0 },
+  },
+  opts,
+);
+const TrackerDaySchema = new Schema(
+  {
+    trackerId: { type: Schema.Types.ObjectId, required: true },
+    day: { type: String, required: true },
+    status: { type: String, enum: ["done", "missed", null], default: null },
+    amount: { type: Number, default: null },
+  },
+  opts,
+);
+TrackerDaySchema.index({ trackerId: 1, day: 1 }, { unique: true });
+export const Tracker = models.Tracker || model("Tracker", TrackerSchema);
+export const TrackerDay = models.TrackerDay || model("TrackerDay", TrackerDaySchema);
+
 export const Project = models.Project || model("Project", ProjectSchema);
 export const Task = models.Task || model("Task", TaskSchema);
 export const Note = models.Note || model("Note", NoteSchema);
